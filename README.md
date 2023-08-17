@@ -1,10 +1,10 @@
-# Fission Dwebcamp Workshop 2023
+# Fission Local-First Software Unconference Workshop 2023
 
 [![Built by FISSION](https://img.shields.io/badge/⌘-Built_by_FISSION-purple.svg)](https://fission.codes) [![Built by FISSION](https://img.shields.io/badge/@oddjs/odd-v0.37.2-purple.svg)](https://github.com/oddsdk/ts-odd) [![Discord](https://img.shields.io/discord/478735028319158273.svg)](https://discord.gg/zAQBDEq) [![Discourse](https://img.shields.io/discourse/https/talk.fission.codes/topics)](https://talk.fission.codes)
 
 Welcome to the workshop! 👋
 
-We'll be hacking on an app that transmogrifies avatars sending them to a new, odd dimension where you can summon them anywhere across the DWeb.
+We'll be hacking on an app that transmogrifies avatars sending them to a new, odd dimension where you can summon them anywhere across the web.
 
 The completed workshop will include transmogrify and summon views:
 
@@ -28,7 +28,7 @@ You'll also want to install a code editor on your machine. We recommend [VSCode]
 Clone the workshop repository:
 
 ```sh
-git clone https://github.com/oddsdk/dwebcamp-workshop-2023
+git clone https://github.com/oddsdk/local-first-unconf-workshop-2023.git
 ```
 
 The workshop code will be cloned into the directory where you run this command. It might be convenient to run this command from your Desktop to have the project readily available.
@@ -36,7 +36,7 @@ The workshop code will be cloned into the directory where you run this command. 
 Install the project dependencies:
 
 ```sh
-cd dwebcamp-workshop-2023
+cd local-first-unconf-workshop-2023
 npm install
 ```
 
