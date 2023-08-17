@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'ApfelGrotezk';
+  src: url('/fonts/ApfelGrotezk-Fett.woff2') format('woff2'),
+        url('/fonts/ApfelGrotezk-Fett.woff') format('woff');
+  font-weight: 400 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Literata';
+  src: url('/fonts/Literata-VariableFont_opsz,wght.ttf') format('truetype');
+  font-weight: 100 600;
+  font-style: normal;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-sans;
+} 
+
+body, input {
+  @apply font-serif;
+  @apply text-body-m;
+  font-weight: 350;
+}
+
+/* Button default styles */
+.btn {
+  @apply font-sans;
+  @apply border-0;
+  @apply transition-colors; 
+  @apply ease-in;
+}
+
+.btn-circle {
+  @apply text-odd-gray-500;
+  @apply bg-odd-gray-200;
+  @apply h-8;
+  @apply min-h-8;
+  @apply w-8;
+}
+
+.btn-circle:hover {
+  @apply bg-odd-gray-150;
+}
+
+.btn-outline {
+  @apply text-btn;
+  @apply text-odd-gray-500;
+  @apply bg-odd-gray-200;
+  @apply px-4;
+}
+
+.btn-clear {
+  @apply text-btn;
+  @apply text-odd-blue-500;
+  @apply bg-transparent;
+}
+
+.btn-primary {
+  @apply text-btn;
+  @apply text-odd-blue-100;
+  @apply bg-odd-blue-500;
+  @apply px-4;
+}
+
+.btn-primary:hover {
+  @apply bg-odd-blue-400;
+}
+
+.btn-primary:disabled {
+  @apply bg-odd-blue-500;
+  @apply text-odd-blue-100;
+  @apply opacity-50;
+}
+
+.btn-warning {
+  @apply bg-odd-pink-500;
+  @apply text-odd-pink-100;
+}
+
+.btn-warning:hover {
+  @apply bg-odd-pink-400;
+}
+
+.btn-link {
+  @apply text-blue-500;
+}
+
+/* Input default styles */
+.input-bordered {
+  @apply text-base-content;
+  @apply border-2;
+  @apply border-base-content;
+}
+
+.modal {
+  @apply bg-base-100;
+  @apply bg-opacity-75;
+}
+
+/* Modal default styles */
+.modal-box {
+  @apply p-12;
+  @apply border-2;
+  @apply border-base-content; 
+  @apply min-w-[33vw];
+  @apply max-w-2xl;
+}
+
+/* Label default styles */
+.label {
+  @apply px-0;
+}
+
+.label-text-alt {
+  @apply text-body-sm;
+}
