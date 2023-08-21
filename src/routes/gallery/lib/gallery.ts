@@ -112,6 +112,46 @@ export const getImagesFromWNFS: () => Promise<void> = async () => {
   }
 }
 
+export type ImagesExport =   {
+  public: { path: odd.path.FilePath<odd.path.PartitionedNonEmpty<odd.path.Public>>; file: Uint8Array }[]
+  private: { path: odd.path.FilePath<odd.path.PartitionedNonEmpty<odd.path.Private>>; file: Uint8Array }[]
+}
+
+export async function getImagesExport(): Promise<ImagesExport> {
+  const fs = getStore(filesystemStore)
+
+  const publicLinks = await fs.ls(GALLERY_DIRS[ 'Public' ])
+  const privateLinks = await fs.ls(GALLERY_DIRS[ 'Private' ])
+
+  const publicImages = await Promise.all(
+    Object.entries(publicLinks).map(async ([ name ]) => {
+      const path = odd.path.combine(GALLERY_DIRS[ 'Public' ], odd.path.file(`${name}`))
+      const file = await fs.get(path)
+
+      if (!isFile(file)) return null
+
+      return { path, file: file.content }
+    })
+  )
+
+  const privateImages = await Promise.all(
+    Object.entries(privateLinks).map(async ([ name ]) => {
+      const path = odd.path.combine(GALLERY_DIRS[ 'Private' ], odd.path.file(`${name}`))
+      const file = await fs.get(path)
+
+      if (!isFile(file)) return null
+
+      return { path, file: file.content }
+    })
+  )
+
+  return {
+    public: [ ...publicImages],
+    private: [ ...privateImages]
+  }
+}
+
+
 /**
  * Upload an image to the user's private or public WNFS
  * @param image
