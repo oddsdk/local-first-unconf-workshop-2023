@@ -10,7 +10,6 @@
   import PhotoGallery from '$components/icons/PhotoGallery.svelte'
   import Settings from '$components/icons/Settings.svelte'
   import NavItem from '$components/nav/NavItem.svelte'
-  import { auth } from '@oddjs/odd'
 
   const navItemsUpper = [
     {

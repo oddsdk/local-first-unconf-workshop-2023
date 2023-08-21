@@ -11,6 +11,7 @@ import { getBackupStatus } from '$lib/auth/backup'
 import { ACCOUNT_SETTINGS_DIR } from '$lib/account-settings'
 import { AREAS } from '$routes/gallery/stores'
 import { GALLERY_DIRS, getImagesExport, type ImagesExport } from '$routes/gallery/lib/gallery'
+import { getAvatarsExport, type AvatarsExport} from '$routes/avatars/lib/avatars'
 
 export const USERNAME_STORAGE_KEY = 'fullUsername'
 
@@ -69,14 +70,17 @@ export const register = async (hashedUsername: string): Promise<boolean> => {
 
   if (!success) return success
 
-  // Load images from local-only file system
-  const imageMap = await getImagesExport()
+  // Load gallery images from local-only file system
+  const imagesExport = await getImagesExport()
+
+  // Load avatars from local-only file system
+  const avatarsExport = await getAvatarsExport()
 
   const session = await authStrategy.session()
   filesystemStore.set(session.fs)
 
   // Create gallery directories and write local-only images to file system
-  await initializeFilesystem(session.fs, imageMap)
+  await initializeFilesystem(session.fs, imagesExport, avatarsExport)
 
   const fullUsername = await storage.getItem(USERNAME_STORAGE_KEY) as string
 
@@ -98,7 +102,7 @@ export const register = async (hashedUsername: string): Promise<boolean> => {
  *
  * @param fs FileSystem
  */
-const initializeFilesystem = async (fs: FileSystem, imagesExport: ImagesExport): Promise<void> => {
+const initializeFilesystem = async (fs: FileSystem, imagesExport: ImagesExport, avatarsExport: AvatarsExport): Promise<void> => {
   await fs.mkdir(GALLERY_DIRS[ AREAS.PUBLIC ])
   await fs.mkdir(GALLERY_DIRS[ AREAS.PRIVATE ])
   await fs.mkdir(ACCOUNT_SETTINGS_DIR)
@@ -109,6 +113,10 @@ const initializeFilesystem = async (fs: FileSystem, imagesExport: ImagesExport):
 
   for (const image of imagesExport.private) {
     await fs.write(image.path, image.file)
+  }
+
+  for (const avatar of avatarsExport) {
+    await fs.write(avatar.path, avatar.file)
   }
 }
 

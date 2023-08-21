@@ -1,6 +1,8 @@
+import { get as getStore } from 'svelte/store'
 import * as faceLandmarksDetection from '@tensorflow-models/face-landmarks-detection'
 import * as odd from '@oddjs/odd'
 import { isFile } from '@oddjs/odd/fs/types/check'
+import { filesystemStore } from '$src/stores'
 import { Canvg, presets } from 'canvg'
 import type { Link } from '@oddjs/odd/fs/types'
 import type { FaceLandmarksDetector } from '@tensorflow-models/face-landmarks-detection'
@@ -82,6 +84,33 @@ export async function getContentCID(fileName: string, fs: odd.FileSystem): Promi
   const cid = (file as PublicFile).cid.toString()
 
   return cid
+}
+
+
+export type AvatarsExport = {
+   path: odd.path.FilePath<odd.path.PartitionedNonEmpty<odd.path.Public>>
+   file: Uint8Array
+}[]
+
+export async function getAvatarsExport(): Promise<AvatarsExport> {
+  const fs = getStore(filesystemStore)
+
+  const links = await fs.ls(odd.path.directory('public', 'avatars'))
+
+  const avatars = await Promise.all(
+    Object.entries(links).map(async ([ name ]) => {
+      const path = odd.path.combine(odd.path.directory('public', 'avatars'), odd.path.file(`${name}`))
+      const file = await fs.get(path)
+
+      if (!isFile(file)) return null
+
+      return { path, file: file.content }
+    })
+  )
+
+  return {
+    ...avatars
+  }
 }
 
 // Image processing
