@@ -3,6 +3,7 @@ import * as odd from '@oddjs/odd'
 import { dev } from '$app/environment'
 import { filesystemStore, sessionStore } from '../stores'
 import { getBackupStatus, type BackupStatus } from '$lib/auth/backup'
+import { initializeLocalOnlyFs, getLocalOnlyFs } from './filesystem/local'
 import { USERNAME_STORAGE_KEY, createDID } from '$lib/auth/account'
 import { oddNamespace } from '$lib/app-info'
 
@@ -51,6 +52,10 @@ export const initialize = async (): Promise<void> => {
       filesystemStore.set(program.session.fs)
 
     } else {
+      const localOnlyFs = await getLocalOnlyFs()
+      await initializeLocalOnlyFs(localOnlyFs)
+      filesystemStore.set(localOnlyFs)
+
       // Not authed
       sessionStore.set({
         username: null,
