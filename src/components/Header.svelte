@@ -31,6 +31,7 @@
       <div
         class="flex items-center cursor-pointer gap-3 dark:text-odd-gray-200"
         on:click={() => goto('/')}
+        on:keypress={() => goto('/')}
       >
         <BrandLogo />
         <span class="font-sans text-heading-m">Avatars</span>
@@ -38,11 +39,12 @@
     {/if}
   </div>
 
-  <!-- Even if the user is not authed, render this header in the connection flow -->
-  {#if !$sessionStore.session || $page.url.pathname.match(/register|backup|delegate/)}
+  <!-- Display header when sidebar is not visible -->
+  {#if $page.url.pathname.match(/register|backup|delegate/)}
     <div
       class="hidden lg:flex flex-1 items-center cursor-pointer gap-3 dark:text-odd-gray-200"
       on:click={() => goto('/')}
+      on:keypress={() => goto('/')}
     >
       <BrandLogo />
       <span class="font-sans text-heading-m">Avatars</span>
@@ -53,6 +55,7 @@
     {#if !$sessionStore.loading && $sessionStore.backupCreated === false}
       <span
         on:click={() => goto('/delegate-account')}
+        on:keypress={() => goto('/delegate-account')}
         class="btn btn-sm btn-warning rounded-full"
       >
         <span class="mr-1 font-serif text-body-xs">Backup your account</span>
@@ -68,11 +71,17 @@
 
     <span class="ml-2 btn btn-circle cursor-pointer">
       {#if $themeStore.selectedTheme === 'light'}
-        <span on:click={() => setTheme('dark')}>
+        <span
+          on:click={() => setTheme('dark')}
+          on:keypress={() => setTheme('dark')}
+        >
           <LightMode />
         </span>
       {:else}
-        <span on:click={() => setTheme('light')}>
+        <span
+          on:click={() => setTheme('light')}
+          on:keypress={() => setTheme('light')}
+        >
           <DarkMode />
         </span>
       {/if}
