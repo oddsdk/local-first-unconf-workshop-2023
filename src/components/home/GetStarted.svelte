@@ -56,16 +56,13 @@
         </p>
       </div>
     {:else}
-      <div class="flex flex-row items-start gap-4">
-        <button
-          class="btn btn-primary gap-2"
-          on:click={getStarted}
-          on:keypress={getStarted}
-        >
-          Get Started
-        </button>
-        <a href="/recover" class="btn btn-clear">Recover an account</a>
-      </div>
+      <button
+        class="btn btn-primary gap-2"
+        on:click={getStarted}
+        on:keypress={getStarted}
+      >
+        Get Started
+      </button>
     {/if}
   </div>
 </div>

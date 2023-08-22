@@ -23,8 +23,11 @@
       yet created an account. You’ll need an account in order to backup your
       file system and access it on your other devices — or browsers.
     </p>
-    <button class="btn btn-primary" on:click={() => goto('/register')}>
-      Create Your Account
-    </button>
+    <div class="flex flex-row items-start gap-4">
+      <button class="btn btn-primary" on:click={() => goto('/register')}>
+        Create Your Account
+      </button>
+      <a href="/recover" class="btn btn-clear">Recover an account</a>
+    </div>
   </div>
 </div>
