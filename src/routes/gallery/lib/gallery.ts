@@ -4,7 +4,7 @@ import type PublicFile from '@oddjs/odd/fs/v1/PublicFile'
 import type PrivateFile from '@oddjs/odd/fs/v1/PrivateFile'
 import { isFile } from '@oddjs/odd/fs/types/check'
 
-import { filesystemStore } from '$src/stores'
+import { filesystemStore, sessionStore } from '$src/stores'
 import { AREAS, galleryStore } from '$routes/gallery/stores'
 import { addNotification } from '$lib/notifications'
 import { fileToUint8Array } from '$lib/utils'
@@ -112,6 +112,46 @@ export const getImagesFromWNFS: () => Promise<void> = async () => {
   }
 }
 
+export type ImagesExport =   {
+  public: { path: odd.path.FilePath<odd.path.PartitionedNonEmpty<odd.path.Public>>; file: Uint8Array }[]
+  private: { path: odd.path.FilePath<odd.path.PartitionedNonEmpty<odd.path.Private>>; file: Uint8Array }[]
+}
+
+export async function getImagesExport(): Promise<ImagesExport> {
+  const fs = getStore(filesystemStore)
+
+  const publicLinks = await fs.ls(GALLERY_DIRS[ 'Public' ])
+  const privateLinks = await fs.ls(GALLERY_DIRS[ 'Private' ])
+
+  const publicImages = await Promise.all(
+    Object.entries(publicLinks).map(async ([ name ]) => {
+      const path = odd.path.combine(GALLERY_DIRS[ 'Public' ], odd.path.file(`${name}`))
+      const file = await fs.get(path)
+
+      if (!isFile(file)) return null
+
+      return { path, file: file.content }
+    })
+  )
+
+  const privateImages = await Promise.all(
+    Object.entries(privateLinks).map(async ([ name ]) => {
+      const path = odd.path.combine(GALLERY_DIRS[ 'Private' ], odd.path.file(`${name}`))
+      const file = await fs.get(path)
+
+      if (!isFile(file)) return null
+
+      return { path, file: file.content }
+    })
+  )
+
+  return {
+    public: [ ...publicImages],
+    private: [ ...privateImages]
+  }
+}
+
+
 /**
  * Upload an image to the user's private or public WNFS
  * @param image
@@ -122,6 +162,7 @@ export const uploadImageToWNFS: (
   try {
     const { selectedArea } = getStore(galleryStore)
     const fs = getStore(filesystemStore)
+    const session = getStore(sessionStore)
 
     // Reject files over 20MB
     const imageSizeInMB = image.size / (1024 * 1024)
@@ -146,7 +187,7 @@ export const uploadImageToWNFS: (
     // Announce the changes to the server
     await fs.publish()
 
-    addNotification(`${image.name} image has been published`, 'success')
+    addNotification(`${image.name} image has been ${session.session ? 'published' : 'stored locally'}`, 'success')
   } catch (error) {
     addNotification(error.message, 'error')
     console.error(error)

@@ -2,6 +2,7 @@
   import { createEventDispatcher, onMount } from 'svelte'
 
   import type { Avatar } from '$routes/avatars/lib/avatars'
+  import { sessionStore } from '$src/stores'
   import Download from '$components/icons/Download.svelte'
   import Trash from '$components/icons/Trash.svelte'
 
@@ -140,16 +141,18 @@
           {/if}
         </div>
         <div class="flex flex-col items-center justify-center">
-          <button
-            class="underline mb-2 hover:text-neutral-500"
-            on:click={openLink}
-          >
-            View on IPFS
-          </button>
+          {#if $sessionStore.session}
+            <button
+              class="underline mb-2 hover:text-neutral-500"
+              on:click={openLink}
+            >
+              View on IPFS
+            </button>
 
-          <button class="btn mb-2 hover:text-neutral-500" on:click={copyCID}>
-            Copy CID
-          </button>
+            <button class="btn mb-2 hover:text-neutral-500" on:click={copyCID}>
+              Copy CID
+            </button>
+          {/if}
 
           <div
             class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4"

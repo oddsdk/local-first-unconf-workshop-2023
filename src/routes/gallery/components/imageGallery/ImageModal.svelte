@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onDestroy, onMount } from 'svelte'
 
+  import { sessionStore } from '$src/stores'
   import { ipfsGatewayUrl } from '$lib/app-info';
   import { galleryStore } from '$routes/gallery/stores'
   import { deleteImageFromWNFS, type Gallery, type Image } from '$routes/gallery/lib/gallery'
@@ -103,12 +104,14 @@
     for={`image-modal-${image.cid}`}
     class="modal cursor-pointer z-50"
     on:click|self={handleCloseModal}
+    on:keypress|self={handleCloseModal}
   >
     <div class="modal-box relative text-center text-base-content">
       <label
         for={`image-modal-${image.cid}`}
         class="btn btn-xs btn-circle !bg-base-content !text-base-100 absolute right-2 top-2"
         on:click={handleCloseModal}
+        on:keypress={handleCloseModal}
       >
         ✕
       </label>
@@ -142,13 +145,15 @@
           <p class="mb-2 text-odd-gray-300">
             Created {new Date(image.ctime).toDateString()}
           </p>
-          <a
-            href={`https://ipfs.${ipfsGatewayUrl}/ipfs/${image.cid}/userland`}
-            target="_blank"
-            class="underline mb-2 hover:text-odd-gray-300"
-          >
-            View on IPFS{#if image.private}*{/if}
-          </a>
+          {#if $sessionStore.session}
+            <a
+              href={`https://ipfs.${ipfsGatewayUrl}/ipfs/${image.cid}/userland`}
+              target="_blank"
+              class="underline mb-2 hover:text-odd-gray-300"
+            >
+              View on IPFS{#if image.private}*{/if}
+            </a>
+          {/if}
 
           <div
             class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4"
@@ -165,24 +170,24 @@
             </button>
           </div>
 
-          {#if image.private}
-          <div class="mt-8 text-body-xs">
-            <p class="mb-2 text-odd-gray-400 dark:text-odd-gray-300">
-              * Your private files can only be viewed on devices that have
-              permission. When viewed directly on IPFS, you will see the
-              encrypted state of this file. This is because the raw IPFS gateway
-              view does not have permission to decrypt this file.
-            </p>
-            <p class="mb-2 text-odd-gray-400 dark:text-odd-gray-300">
-              Interested in private file sharing as a feature? Follow the <a
-                class="underline"
-                href="https://github.com/oddsdk/odd-app-template/issues/4"
-                target="_blank"
-              >
-                github issue.
-              </a>
-            </p>
-          </div>
+          {#if $sessionStore.session && image.private}
+            <div class="mt-8 text-body-xs">
+              <p class="mb-2 text-odd-gray-400 dark:text-odd-gray-300">
+                * Your private files can only be viewed on devices that have
+                permission. When viewed directly on IPFS, you will see the
+                encrypted state of this file. This is because the raw IPFS
+                gateway view does not have permission to decrypt this file.
+              </p>
+              <p class="mb-2 text-odd-gray-400 dark:text-odd-gray-300">
+                Interested in private file sharing as a feature? Follow the <a
+                  class="underline"
+                  href="https://github.com/oddsdk/odd-app-template/issues/4"
+                  target="_blank"
+                >
+                  github issue.
+                </a>
+              </p>
+            </div>
           {/if}
         </div>
       </div>

@@ -1,10 +1,12 @@
 import * as odd from '@oddjs/odd'
 
 import { dev } from '$app/environment'
-import { filesystemStore, sessionStore } from '../stores'
+import { filesystemStore, sessionStore, getStartedViewedStore } from '../stores'
 import { getBackupStatus, type BackupStatus } from '$lib/auth/backup'
+import { initializeLocalOnlyFs, getLocalOnlyFs } from './filesystem/local'
 import { USERNAME_STORAGE_KEY, createDID } from '$lib/auth/account'
 import { oddNamespace } from '$lib/app-info'
+import { viewedGetStarted } from './session'
 
 // Initialize TFJS and models
 import '@tensorflow/tfjs-core'
@@ -39,7 +41,7 @@ export const initialize = async (): Promise<void> => {
         username: {
           full: fullUsername,
           hashed: program.session.username,
-          trimmed: fullUsername.split('#')[0],
+          trimmed: fullUsername.split('#')[ 0 ],
         },
         session: program.session,
         authStrategy: program.auth,
@@ -50,7 +52,17 @@ export const initialize = async (): Promise<void> => {
 
       filesystemStore.set(program.session.fs)
 
+      const viewed = await viewedGetStarted()
+      getStartedViewedStore.set(viewed)
     } else {
+      const localOnlyFs = await getLocalOnlyFs()
+      await initializeLocalOnlyFs(localOnlyFs)
+
+      filesystemStore.set(localOnlyFs)
+
+      const viewed = await viewedGetStarted()
+      getStartedViewedStore.set(viewed)
+
       // Not authed
       sessionStore.set({
         username: null,

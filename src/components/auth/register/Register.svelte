@@ -9,6 +9,8 @@
     USERNAME_STORAGE_KEY
   } from '$lib/auth/account'
   import FilesystemActivity from '$components/common/FilesystemActivity.svelte'
+  import { goto } from '$app/navigation'
+  import StarIcon from '$components/icons/Star.svelte'
 
   let username: string = ''
   let encodedUsername: string = ''
@@ -54,7 +56,11 @@
 
     registrationSuccess = await register(encodedUsername)
 
-    if (!registrationSuccess) initializingFilesystem = false
+    if (!registrationSuccess) {
+      initializingFilesystem = false
+    } else {
+      goto('/')
+    }
   }
 
   $: usernameApproved =
@@ -66,9 +72,6 @@
     username.length > 0 &&
     !checkingUsername &&
     (!usernameValid || !usernameAvailable)
-
-  let existingAccount = false
-  const toggleExistingAccount = () => (existingAccount = !existingAccount)
 </script>
 
 {#if initializingFilesystem}
@@ -77,13 +80,10 @@
   <div
     class="flex flex-col items-center justify-center gap-4 min-h-[calc(100vh-128px)] md:min-h-[calc(100vh-160px)] max-w-[352px] m-auto"
   >
-    <h1 class="text-heading-lg">Connect this device</h1>
+    <h1 class="text-heading-lg">Create Your Account</h1>
 
     <!-- Registration Form -->
-    <form
-      on:submit={registerUser}
-      class="w-full"
-    >
+    <form on:submit={registerUser} class="w-full">
       <h2 class="mb-2 text-heading-sm">Choose a username</h2>
       <div class="relative">
         <input
@@ -139,48 +139,17 @@
 
       <div class="flex items-center mt-4">
         <button
-          class="flex-1 btn btn-primary"
+          class="flex-1 gap-2 btn btn-primary"
           disabled={username.length === 0 ||
             !usernameValid ||
             !usernameAvailable ||
             checkingUsername}
           type="submit"
         >
+          <StarIcon />
           Create your account
         </button>
       </div>
     </form>
-
-    <!-- Existing Account -->
-    <div class="flex flex-col gap-5 w-full">
-      <button
-        class="btn btn-outline !h-[52px] w-full {existingAccount
-          ? '!bg-base-content !text-base-100 !border-base-content'
-          : ''}"
-        on:click={toggleExistingAccount}
-      >
-        I have an existing account
-      </button>
-      {#if existingAccount}
-        <div
-          class="flex flex-col gap-4 p-6 rounded bg-odd-gray-200 text-odd-gray-500"
-        >
-          <h3 class="text-body-sm text-center">
-            Which device are you connected on?
-          </h3>
-          <p>To connect your existing account, you'll need to:</p>
-          <ol class="pl-6 list-decimal">
-            <li>Find a device the account is already connected on</li>
-            <li>Navigate to your Account Settings</li>
-            <li>Click "Connect a new device"</li>
-          </ol>
-        </div>
-      {/if}
-    </div>
-
-    <!-- Recovery Link -->
-    <a href="/recover" class="btn btn-clear">
-      Recover an account
-    </a>
   </div>
 {/if}

@@ -1,8 +1,20 @@
 <script lang="ts">
-  import { sessionStore } from '$src/stores'
+  import { setGetStartedViewed } from '$lib/session'
   import { appName } from '$lib/app-info'
+  import { isSupported } from '@oddjs/odd'
   import Alert from '$components/icons/Alert.svelte'
-  import Connect from '$components/icons/Connect.svelte'
+
+  let supported = false
+
+  async function getStarted() {
+    await setGetStartedViewed()
+  }
+
+  async function checkSupport() {
+    supported = await isSupported()
+  }
+
+  checkSupport()
 </script>
 
 <div
@@ -31,24 +43,26 @@
       </li>
     </ul>
 
-    {#if $sessionStore.error === 'Unsupported Browser'}
+    {#if !supported}
       <div class="p-4 rounded-lg bg-base-content text-neutral-50">
         <h3 class="flex items-center gap-2 text-body-m">
           <span class="-translate-y-[2px]"><Alert /></span>
           Unsupported device
         </h3>
         <p>
-          It appears this device isn’t supported. ODD requires IndexedDB in
-          order to function. This browser doesn’t appear to implement this API.
+          It appears this device isn't supported. ODD requires IndexedDB in
+          order to function. This browser doesn't appear to implement this API.
           Are you in a Firefox private window?
         </p>
       </div>
     {:else}
-      <div class="flex flex-col items-start gap-4">
-        <a class="btn btn-primary gap-2" href="/register">
-          Connect this device
-        </a>
-      </div>
+      <button
+        class="btn btn-primary gap-2"
+        on:click={getStarted}
+        on:keypress={getStarted}
+      >
+        Get Started
+      </button>
     {/if}
   </div>
 </div>
