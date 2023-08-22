@@ -1,11 +1,14 @@
 <script lang="ts">
-  import { sessionStore } from '$src/stores'
+  import { getStartedViewedStore, sessionStore } from '$src/stores'
   import Authed from '$components/home/Authed.svelte'
-  import Public from '$components/home/Public.svelte'
+  import GetStarted from '$components/home/GetStarted.svelte'
+  import Local from '$components/home/Local.svelte'
 </script>
 
 {#if $sessionStore?.session}
   <Authed />
+{:else if $getStartedViewedStore}
+  <Local />
 {:else}
-  <Public />
+  <GetStarted />
 {/if}

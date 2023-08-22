@@ -21,6 +21,8 @@ export const sessionStore: Writable<Session> = writable({
 
 export const filesystemStore: Writable<FileSystem | null> = writable(null)
 
+export const getStartedViewedStore: Writable<boolean> = writable(false)
+
 export const notificationStore: Writable<Notification[]> = writable([])
 
 export const accountSettingsStore: Writable<AccountSettings> = writable({

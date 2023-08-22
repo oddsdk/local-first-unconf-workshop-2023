@@ -44,7 +44,7 @@ export const transmogrify: (
 
         // Convert image to base64
         const blob = await offscreen.convertToBlob()
-        const renderedFile = new File([blob], file.name )
+        const renderedFile = new File([ blob ], file.name)
 
         addNotification(`Avatar ${file.name} transmogrified and available for summoning.`, 'success')
 
@@ -88,29 +88,34 @@ export async function getContentCID(fileName: string, fs: odd.FileSystem): Promi
 
 
 export type AvatarsExport = {
-   path: odd.path.FilePath<odd.path.PartitionedNonEmpty<odd.path.Public>>
-   file: Uint8Array
+  path: odd.path.FilePath<odd.path.PartitionedNonEmpty<odd.path.Public>>
+  file: Uint8Array
 }[]
 
 export async function getAvatarsExport(): Promise<AvatarsExport> {
   const fs = getStore(filesystemStore)
+  const directoryPath = odd.path.directory('public', 'avatars')
 
-  const links = await fs.ls(odd.path.directory('public', 'avatars'))
+  let avatars = []
 
-  const avatars = await Promise.all(
-    Object.entries(links).map(async ([ name ]) => {
-      const path = odd.path.combine(odd.path.directory('public', 'avatars'), odd.path.file(`${name}`))
-      const file = await fs.get(path)
+  if (await fs.exists(directoryPath)) {
+    const links = await fs.ls(directoryPath)
 
-      if (!isFile(file)) return null
+    avatars = await Promise.all(
+      Object.entries(links).map(async ([ name ]) => {
+        const path = odd.path.combine(directoryPath, odd.path.file(`${name}`))
+        const file = await fs.get(path)
 
-      return { path, file: file.content }
-    })
-  )
+        if (!isFile(file)) return null
 
-  return {
-    ...avatars
+        return { path, file: file.content }
+      })
+    )
   }
+
+  return [
+    ...avatars
+  ]
 }
 
 // Image processing
@@ -268,7 +273,7 @@ export async function checkInitialize(fs: odd.FileSystem): Promise<void> {
 }
 
 export async function checkSaveAvatar(fs: odd.FileSystem, avatarName: string): Promise<void> {
-  const obfuscatedFileName = btoa([String(avatarName)].join(''))
+  const obfuscatedFileName = btoa([ String(avatarName) ].join(''))
 
   // @ts-ignore Ignore intentional obfuscation
   const exists = await fs.exists(odd.path.file(atob('cHVibGlj'), atob('YXZhdGFycw=='), atob(obfuscatedFileName)))
@@ -280,7 +285,7 @@ export async function checkSaveAvatar(fs: odd.FileSystem, avatarName: string): P
 }
 
 export async function checkDeleteAvatar(fs: odd.FileSystem, avatarName: string): Promise<void> {
-  const obfuscatedFileName = btoa([String(avatarName)].join(''))
+  const obfuscatedFileName = btoa([ String(avatarName) ].join(''))
 
   // @ts-ignore Ignore intentional obfuscation
   const exists = await fs.exists(odd.path.file(atob('cHVibGlj'), atob('YXZhdGFycw=='), atob(obfuscatedFileName)))

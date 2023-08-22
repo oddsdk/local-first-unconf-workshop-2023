@@ -6,12 +6,13 @@ import type FileSystem from '@oddjs/odd/fs/index'
 import { get as getStore } from 'svelte/store'
 
 import { asyncDebounce } from '$lib/utils'
-import { filesystemStore, sessionStore } from '../../stores'
+import { filesystemStore, sessionStore, getStartedViewedStore } from '../../stores'
 import { getBackupStatus } from '$lib/auth/backup'
 import { ACCOUNT_SETTINGS_DIR } from '$lib/account-settings'
 import { AREAS } from '$routes/gallery/stores'
 import { GALLERY_DIRS, getImagesExport, type ImagesExport } from '$routes/gallery/lib/gallery'
-import { getAvatarsExport, type AvatarsExport} from '$routes/avatars/lib/avatars'
+import { getAvatarsExport, type AvatarsExport } from '$routes/avatars/lib/avatars'
+import { setGetStartedViewed, viewedGetStarted } from '$lib/session'
 
 export const USERNAME_STORAGE_KEY = 'fullUsername'
 
@@ -76,11 +77,13 @@ export const register = async (hashedUsername: string): Promise<boolean> => {
   // Load avatars from local-only file system
   const avatarsExport = await getAvatarsExport()
 
+  const getStartedViewed = await viewedGetStarted()
+
   const session = await authStrategy.session()
   filesystemStore.set(session.fs)
 
   // Create gallery directories and write local-only images to file system
-  await initializeFilesystem(session.fs, imagesExport, avatarsExport)
+  await initializeFilesystem(session.fs, imagesExport, avatarsExport, getStartedViewed)
 
   const fullUsername = await storage.getItem(USERNAME_STORAGE_KEY) as string
 
@@ -102,7 +105,7 @@ export const register = async (hashedUsername: string): Promise<boolean> => {
  *
  * @param fs FileSystem
  */
-const initializeFilesystem = async (fs: FileSystem, imagesExport: ImagesExport, avatarsExport: AvatarsExport): Promise<void> => {
+const initializeFilesystem = async (fs: FileSystem, imagesExport: ImagesExport, avatarsExport: AvatarsExport, viewedGetStarted: boolean): Promise<void> => {
   await fs.mkdir(GALLERY_DIRS[ AREAS.PUBLIC ])
   await fs.mkdir(GALLERY_DIRS[ AREAS.PRIVATE ])
   await fs.mkdir(ACCOUNT_SETTINGS_DIR)
@@ -118,6 +121,8 @@ const initializeFilesystem = async (fs: FileSystem, imagesExport: ImagesExport, 
   for (const avatar of avatarsExport) {
     await fs.write(avatar.path, avatar.file)
   }
+
+  if (viewedGetStarted) await setGetStartedViewed()
 }
 
 export const loadAccount = async (hashedUsername: string, fullUsername: string): Promise<void> => {
@@ -125,6 +130,9 @@ export const loadAccount = async (hashedUsername: string, fullUsername: string):
   const session = await authStrategy.session()
 
   filesystemStore.set(session.fs)
+
+  const viewed = await viewedGetStarted()
+  getStartedViewedStore.set(viewed)
 
   const backupStatus = await getBackupStatus(session.fs)
 

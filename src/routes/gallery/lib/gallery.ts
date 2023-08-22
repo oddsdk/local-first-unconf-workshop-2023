@@ -4,7 +4,7 @@ import type PublicFile from '@oddjs/odd/fs/v1/PublicFile'
 import type PrivateFile from '@oddjs/odd/fs/v1/PrivateFile'
 import { isFile } from '@oddjs/odd/fs/types/check'
 
-import { filesystemStore } from '$src/stores'
+import { filesystemStore, sessionStore } from '$src/stores'
 import { AREAS, galleryStore } from '$routes/gallery/stores'
 import { addNotification } from '$lib/notifications'
 import { fileToUint8Array } from '$lib/utils'
@@ -162,6 +162,7 @@ export const uploadImageToWNFS: (
   try {
     const { selectedArea } = getStore(galleryStore)
     const fs = getStore(filesystemStore)
+    const session = getStore(sessionStore)
 
     // Reject files over 20MB
     const imageSizeInMB = image.size / (1024 * 1024)
@@ -186,7 +187,7 @@ export const uploadImageToWNFS: (
     // Announce the changes to the server
     await fs.publish()
 
-    addNotification(`${image.name} image has been published`, 'success')
+    addNotification(`${image.name} image has been ${session.session ? 'published' : 'stored locally'}`, 'success')
   } catch (error) {
     addNotification(error.message, 'error')
     console.error(error)

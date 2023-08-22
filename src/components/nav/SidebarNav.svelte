@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation'
   import { page } from '$app/stores'
-  import { sessionStore } from '$src/stores'
+  import { sessionStore, getStartedViewedStore } from '$src/stores'
   import About from '$components/icons/About.svelte'
   import Avatars from '$components/icons/Avatars.svelte'
   import BrandLogo from '$components/icons/BrandLogo.svelte'
@@ -65,8 +65,7 @@
   }
 </script>
 
-<!-- Only render the nav if the user is authed and not in the connection flow -->
-<!-- {#if $sessionStore.session} -->
+<!-- Only render the nav if the user has gotten started and is not in the connection flow -->
 <div class="drawer drawer-mobile h-screen">
   <input id="sidebar-nav" class="drawer-toggle" type="checkbox" bind:checked />
   <div class="drawer-content flex flex-col">
@@ -75,7 +74,7 @@
   <div
     class="drawer-side {$page.url.pathname.match(
       /register|backup|delegate|recover/
-    )
+    ) || !$getStartedViewedStore
       ? '!hidden'
       : ''}"
   >
@@ -88,6 +87,10 @@
       <div
         class="flex items-center cursor-pointer gap-3 dark:text-odd-gray-200 mb-10"
         on:click={() => {
+          handleCloseDrawer()
+          goto('/')
+        }}
+        on:keypress={() => {
           handleCloseDrawer()
           goto('/')
         }}
