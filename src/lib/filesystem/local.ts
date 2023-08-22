@@ -1,10 +1,14 @@
 import * as odd from '@oddjs/odd'
 import { createEmitter, type FileSystem as FileSystemEvents } from '@oddjs/odd/events'
 import { isCID } from '@oddjs/odd/fs/types/check'
+import { getAvatarsExport, type AvatarsExport } from '$routes/avatars/lib/avatars'
+import { setGetStartedViewed, viewedGetStarted } from '$lib/session'
 import { type CID, decodeCID, encodeCID } from '@oddjs/odd/common/cid'
 import { FileSystem, type Program } from '@oddjs/odd'
+import { ACCOUNT_SETTINGS_DIR } from '$lib/account-settings'
 import { AREAS } from '$routes/gallery/stores'
-import { GALLERY_DIRS } from '$routes/gallery/lib/gallery'
+import { GALLERY_DIRS, getImagesExport, type ImagesExport } from '$routes/gallery/lib/gallery'
+import { filesystemStore } from '$src/stores'
 
 const LOCAL_ONLY_FS_KEY = 'local-only-fs'
 
@@ -62,11 +66,41 @@ export function getLocalOnlyFs(): Promise<odd.FileSystem> {
       debug: true
     })
     .then(async (program) => {
-       return await localOnlyFileSystem(program)
+      return await localOnlyFileSystem(program)
     })
 }
 
 export async function initializeLocalOnlyFs(fs: odd.FileSystem): Promise<void> {
   await fs.mkdir(GALLERY_DIRS[ AREAS.PUBLIC ])
   await fs.mkdir(GALLERY_DIRS[ AREAS.PRIVATE ])
+}
+
+export const migrateToLocalOnlyFs = async (): Promise<void> => {
+  // Load data from synced file system
+  const imagesExport = await getImagesExport()
+  const avatarsExport = await getAvatarsExport()
+  const getStartedViewed = await viewedGetStarted()
+
+  // Use local-only file system
+  const localOnlyFS = await getLocalOnlyFs()
+  filesystemStore.set(localOnlyFS)
+
+  // Copy over data
+  await localOnlyFS.mkdir(GALLERY_DIRS[ AREAS.PUBLIC ])
+  await localOnlyFS.mkdir(GALLERY_DIRS[ AREAS.PRIVATE ])
+  await localOnlyFS.mkdir(ACCOUNT_SETTINGS_DIR)
+
+  for (const image of imagesExport.public) {
+    await localOnlyFS.write(image.path, image.file)
+  }
+
+  for (const image of imagesExport.private) {
+    await localOnlyFS.write(image.path, image.file)
+  }
+
+  for (const avatar of avatarsExport) {
+    await localOnlyFS.write(avatar.path, avatar.file)
+  }
+
+  if (getStartedViewed) await setGetStartedViewed()
 }

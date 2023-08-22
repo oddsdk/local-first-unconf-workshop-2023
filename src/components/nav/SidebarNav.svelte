@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation'
   import { page } from '$app/stores'
+  import { migrateToLocalOnlyFs } from '$lib/filesystem/local'
   import { sessionStore, getStartedViewedStore } from '$src/stores'
   import About from '$components/icons/About.svelte'
   import Avatars from '$components/icons/Avatars.svelte'
@@ -49,6 +50,7 @@
     {
       label: 'Disconnect',
       callback: async () => {
+        await migrateToLocalOnlyFs()
         await $sessionStore.session.destroy()
         // Force a hard refresh to ensure everything is disconnected properly
         window.location.href = window.location.origin
